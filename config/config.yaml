@@ -1,0 +1,16 @@
+env: "local"
+http_server:
+  port: "8080"
+  timeout: 4s
+  idle_timeout: 60s
+  swagger_enabled: true
+database:
+  net: "tcp"
+  server: ":3306"
+  db_name: "backend"
+  user: "root"
+  password: "root"
+  time_zone: "UTC"
+  timeout: 2s
+  max_idle_connections: 40
+  max_open_connections: 40
