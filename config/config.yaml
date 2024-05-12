@@ -7,7 +7,7 @@ http_server:
 database:
   net: "tcp"
   server: ":3306"
-  db_name: "backend"
+  db_name: "NNBlog"
   user: "root"
   password: "root"
   time_zone: "UTC"
