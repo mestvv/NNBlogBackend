@@ -12,6 +12,7 @@ type Config struct {
 	Env        string     `yaml:"env" env-required:"true"`
 	HttpServer HttpServer `yaml:"http_server"`
 	Database   Database   `yaml:"database"`
+	Limiter    Limiter    `yaml:"limiter"`
 }
 
 type HttpServer struct {
@@ -31,6 +32,12 @@ type Database struct {
 	Timeout            time.Duration `yaml:"timeout" env-default:"2s"`
 	MaxIdleConnections int           `yaml:"max_idle_connections" env-default:"40"`
 	MaxOpenConnections int           `yaml:"max_open_connections" env-default:"40"`
+}
+
+type Limiter struct {
+	RPS   int           `yaml:"rps" env-default:"10"`
+	Burst int           `yaml:"burst" env-default:"20"`
+	TTL   time.Duration `yaml:"ttl" env-default:"10m"`
 }
 
 func MustLoad(configPath string) *Config {

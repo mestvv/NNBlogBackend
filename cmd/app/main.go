@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mestvv/NNBlogBackend/internal/api"
+	apiHttp "github.com/mestvv/NNBlogBackend/internal/api/http"
 	"github.com/mestvv/NNBlogBackend/internal/config"
 	"github.com/mestvv/NNBlogBackend/internal/db"
 	"github.com/mestvv/NNBlogBackend/internal/log"
@@ -50,7 +50,7 @@ func main() {
 		Config: cfg,
 		Repos:  repos,
 	})
-	handlers := api.NewHandlers(services, logger)
+	handlers := apiHttp.NewHandlers(services, logger)
 
 	// HTTP Server
 	srv := server.NewServer(cfg, handlers.Init(cfg))

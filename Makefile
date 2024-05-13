@@ -45,7 +45,7 @@ run-app:
 # generate swagger
 swag:
 	@echo 'generation swagger docs'
-	swag init --parseDependency -g handler.go -dir internal/api/internal/http/v1 --instanceName internal
+	swag init --parseDependency -g handler.go -dir internal/api/http/internal/v1 --instanceName internal
 
 # migrations
 LOCAL_MIGRATION_DIR=$(CURDIR)/$(MIGRATION_DIR)

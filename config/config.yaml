@@ -14,3 +14,7 @@ database:
   timeout: 2s
   max_idle_connections: 40
   max_open_connections: 40
+limiter:
+  rps: 10
+  burst: 20
+  ttl: 10m

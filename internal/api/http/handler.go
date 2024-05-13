@@ -1,4 +1,4 @@
-package api
+package apiHttp
 
 import (
 	"log/slog"
@@ -11,8 +11,9 @@ import (
 	_ "github.com/mestvv/NNBlogBackend/docs"
 
 	"github.com/gin-gonic/gin"
-	internalV1 "github.com/mestvv/NNBlogBackend/internal/api/internal/http/v1"
+	internalV1 "github.com/mestvv/NNBlogBackend/internal/api/http/internal/v1"
 	"github.com/mestvv/NNBlogBackend/internal/config"
+	"github.com/mestvv/NNBlogBackend/internal/limiter"
 	"github.com/mestvv/NNBlogBackend/internal/service"
 )
 
@@ -38,6 +39,8 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 			WithSpanID:  true,
 			WithTraceID: true,
 		}),
+		limiter.Limit(cfg.Limiter.RPS, cfg.Limiter.Burst, cfg.Limiter.TTL, h.logger),
+		corsMiddleware,
 	)
 
 	if cfg.HttpServer.SwaggerEnabled {
