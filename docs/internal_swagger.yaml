@@ -1,13 +1,84 @@
 basePath: /api/v1
+definitions:
+  ErrorStruct:
+    properties:
+      error_code:
+        type: integer
+      error_message:
+        type: string
+    type: object
+  v1.userRegisterRequest:
+    properties:
+      email:
+        example: mail@mail.com
+        maxLength: 64
+        type: string
+      first_name:
+        example: John
+        maxLength: 64
+        minLength: 2
+        type: string
+      last_name:
+        example: Doe
+        maxLength: 64
+        minLength: 2
+        type: string
+      name:
+        example: wazzup
+        maxLength: 64
+        minLength: 2
+        type: string
+      password:
+        example: notasecretpassword
+        maxLength: 64
+        minLength: 8
+        type: string
+      phone:
+        example: "74950234061"
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
 info:
   contact: {}
   description: API for Service
   title: Backend Service
   version: "1.0"
-paths: {}
+paths:
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Create user account
+      parameters:
+      - description: register info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.userRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorStruct'
+        "500":
+          description: Internal Server Error
+      summary: User Register
+      tags:
+      - User Auth
 securityDefinitions:
-  Bearer:
-    description: Type "Bearer" followed by a space and JWT token.
+  AdminAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  UsersAuth:
     in: header
     name: Authorization
     type: apiKey
