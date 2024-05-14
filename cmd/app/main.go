@@ -41,7 +41,8 @@ func main() {
 		os.Exit(1)
 	}
 	defer func() {
-		if err := dbMySQL.Close(); err != nil {
+		err = dbMySQL.Close()
+		if err != nil {
 			logger.Error("error when closing", "error", err)
 		}
 	}()
