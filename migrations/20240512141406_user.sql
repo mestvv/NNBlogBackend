@@ -5,7 +5,6 @@ SELECT 'up SQL query';
 
 CREATE TABLE `user` (
     `id` BINARY(16) NOT NULL,
-    `password` VARCHAR(255) COMMENT 'Пароль',
     `username` VARCHAR(255) UNIQUE COMMENT 'Ник пользователя',
     `first_name` VARCHAR(255) COMMENT 'Имя пользователя',
     `last_name` VARCHAR(255) COMMENT 'Фамилия пользователя',
@@ -15,6 +14,7 @@ CREATE TABLE `user` (
     `active` BOOL COMMENT 'Статус активизации аккаунта',
     `verification_code` VARCHAR(20) COMMENT 'Код верификации',
     `verified` BOOL COMMENT 'Статус верификации',
+    `password` VARCHAR(255) COMMENT 'Пароль',
     `created_at` DATETIME COMMENT 'Дата и время создания записи',
     `updated_at` DATETIME COMMENT 'Дата и время последнего обновления записи',
     `deleted_at` DATETIME COMMENT 'Дата и время удаления записи',
