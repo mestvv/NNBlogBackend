@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mestvv/NNBlogBackend/internal/domain"
@@ -17,5 +19,6 @@ func NewRepositories(db *sqlx.DB) *Repositories {
 }
 
 type Users interface {
-	GetByID(ctx, ID uuid.UUID) (*domain.User, error)
+	Create(ctx context.Context, user *domain.User) error
+	GetByID(ctx context.Context, ID uuid.UUID) (*domain.User, error)
 }

@@ -12,20 +12,24 @@ import (
 // @description API for Service
 
 // @BasePath /api/v1
-// @securityDefinitions.apikey Bearer
+
+// @securityDefinitions.apikey AdminAuth
 // @in header
 // @name Authorization
-// @description Type "Bearer" followed by a space and JWT token.
+
+// @securityDefinitions.apikey UsersAuth
+// @in header
+// @name Authorization
 
 type Handler struct {
-	Services *service.Services
-	Logger   *slog.Logger
+	services *service.Services
+	logger   *slog.Logger
 }
 
 func NewHandler(services *service.Services, logger *slog.Logger) *Handler {
 	return &Handler{
-		Services: services,
-		Logger:   logger,
+		services: services,
+		logger:   logger,
 	}
 }
 

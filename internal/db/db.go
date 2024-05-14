@@ -9,6 +9,8 @@ import (
 	"github.com/mestvv/NNBlogBackend/internal/config"
 )
 
+const DuplicateEntry = 1062
+
 func New(cfg config.Database) (*sqlx.DB, error) {
 	location, err := time.LoadLocation(cfg.TimeZone)
 	if err != nil {

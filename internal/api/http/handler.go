@@ -9,11 +9,12 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	_ "github.com/mestvv/NNBlogBackend/docs"
+	"github.com/mestvv/NNBlogBackend/pkg/limiter"
+	"github.com/mestvv/NNBlogBackend/pkg/validator"
 
 	"github.com/gin-gonic/gin"
 	internalV1 "github.com/mestvv/NNBlogBackend/internal/api/http/internal/v1"
 	"github.com/mestvv/NNBlogBackend/internal/config"
-	"github.com/mestvv/NNBlogBackend/internal/limiter"
 	"github.com/mestvv/NNBlogBackend/internal/service"
 )
 
@@ -32,6 +33,8 @@ func NewHandlers(services *service.Services, logger *slog.Logger) *Handler {
 func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+
+	validator.RegisterGinValidator()
 
 	router.Use(
 		gin.Recovery(),
