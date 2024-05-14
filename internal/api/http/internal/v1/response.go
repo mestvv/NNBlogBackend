@@ -9,14 +9,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type response struct {
-	Message string `json:"message"`
-}
-
-func newResponse(c *gin.Context, statusCode int, message string) {
-	c.AbortWithStatusJSON(statusCode, response{message})
-}
-
 func errorResponse(c *gin.Context, code ErrorCode) {
 	c.AbortWithStatusJSON(http.StatusBadRequest, getErrorStruct(code))
 }

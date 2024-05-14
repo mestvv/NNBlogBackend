@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"log"
 	"reflect"
 	"regexp"
 	"strings"
@@ -18,7 +19,10 @@ func RegisterGinValidator() {
 			}
 			return name
 		})
-		v.RegisterValidation("phonenumber", phoneNumberValidator)
+		err := v.RegisterValidation("phonenumber", phoneNumberValidator)
+		if err != nil {
+			log.Fatal("register phonenumber validator failed")
+		}
 	}
 }
 

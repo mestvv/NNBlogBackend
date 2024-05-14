@@ -55,7 +55,7 @@ func main() {
 		return
 	}
 
-	tokenManager, err := auth.NewManager(cfg.Auth.JWT.SigningKey)
+	tokenManager, err := auth.NewManager(cfg.Auth.JWT)
 	if err != nil {
 		logger.Error("auth manager creation err", err)
 		return
