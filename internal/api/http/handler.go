@@ -1,4 +1,4 @@
-package api
+package apiHttp
 
 import (
 	"log/slog"
@@ -9,22 +9,27 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	_ "github.com/mestvv/NNBlogBackend/docs"
+	"github.com/mestvv/NNBlogBackend/pkg/auth"
+	"github.com/mestvv/NNBlogBackend/pkg/limiter"
+	"github.com/mestvv/NNBlogBackend/pkg/validator"
 
 	"github.com/gin-gonic/gin"
-	internalV1 "github.com/mestvv/NNBlogBackend/internal/api/internal/http/v1"
+	internalV1 "github.com/mestvv/NNBlogBackend/internal/api/http/internal/v1"
 	"github.com/mestvv/NNBlogBackend/internal/config"
 	"github.com/mestvv/NNBlogBackend/internal/service"
 )
 
 type Handler struct {
-	services *service.Services
-	logger   *slog.Logger
+	services     *service.Services
+	logger       *slog.Logger
+	tokenManager auth.TokenManager
 }
 
-func NewHandlers(services *service.Services, logger *slog.Logger) *Handler {
+func NewHandlers(services *service.Services, logger *slog.Logger, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
-		services: services,
-		logger:   logger,
+		services:     services,
+		logger:       logger,
+		tokenManager: tokenManager,
 	}
 }
 
@@ -32,12 +37,16 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
+	validator.RegisterGinValidator()
+
 	router.Use(
 		gin.Recovery(),
 		sloggin.NewWithConfig(h.logger, sloggin.Config{
 			WithSpanID:  true,
 			WithTraceID: true,
 		}),
+		limiter.Limit(cfg.Limiter.RPS, cfg.Limiter.Burst, cfg.Limiter.TTL, h.logger),
+		corsMiddleware,
 	)
 
 	if cfg.HttpServer.SwaggerEnabled {
@@ -50,7 +59,7 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 }
 
 func (h *Handler) initAPI(router *gin.Engine) {
-	internalHandlersV1 := internalV1.NewHandler(h.services, h.logger)
+	internalHandlersV1 := internalV1.NewHandler(h.services, h.logger, h.tokenManager)
 	api := router.Group("/api")
 	{
 		internalHandlersV1.Init(api)

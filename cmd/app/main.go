@@ -9,13 +9,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mestvv/NNBlogBackend/internal/api"
+	apiHttp "github.com/mestvv/NNBlogBackend/internal/api/http"
 	"github.com/mestvv/NNBlogBackend/internal/config"
 	"github.com/mestvv/NNBlogBackend/internal/db"
-	"github.com/mestvv/NNBlogBackend/internal/log"
 	"github.com/mestvv/NNBlogBackend/internal/repository"
 	"github.com/mestvv/NNBlogBackend/internal/server"
 	"github.com/mestvv/NNBlogBackend/internal/service"
+	"github.com/mestvv/NNBlogBackend/pkg/auth"
+	"github.com/mestvv/NNBlogBackend/pkg/email/smtp"
+	"github.com/mestvv/NNBlogBackend/pkg/hash"
+	log "github.com/mestvv/NNBlogBackend/pkg/logger"
+	"github.com/mestvv/NNBlogBackend/pkg/otp"
 )
 
 const configPath = "config/config.yaml"
@@ -24,7 +28,7 @@ func main() {
 	// Init cfg
 	cfg := config.MustLoad(configPath)
 
-	// Init logger
+	// Dependencies
 	logger := log.SetupLogger(cfg.Env)
 
 	logger.Info("starting backend api", "env", cfg.Env)
@@ -37,20 +41,41 @@ func main() {
 		os.Exit(1)
 	}
 	defer func() {
-		if err := dbMySQL.Close(); err != nil {
+		err = dbMySQL.Close()
+		if err != nil {
 			logger.Error("error when closing", "error", err)
 		}
 	}()
 	logger.Info("mysql connection done")
 
+	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
+
+	emailSender, err := smtp.NewSMTPSender(cfg.SMTP.From, cfg.SMTP.Pass, cfg.SMTP.Host, cfg.SMTP.Port)
+	if err != nil {
+		logger.Error("smtp sender creation failed", err)
+		return
+	}
+
+	tokenManager, err := auth.NewManager(cfg.Auth.JWT)
+	if err != nil {
+		logger.Error("auth manager creation err", err)
+		return
+	}
+
+	otpGenerator := otp.NewGOTPGenerator()
+
 	// Services, Repos & API Handlers
 	repos := repository.NewRepositories(dbMySQL)
 	services := service.NewServices(service.Deps{
-		Logger: logger,
-		Config: cfg,
-		Repos:  repos,
+		Logger:       logger,
+		Config:       cfg,
+		Hasher:       hasher,
+		TokenManager: tokenManager,
+		OtpGenerator: otpGenerator,
+		EmailSender:  emailSender,
+		Repos:        repos,
 	})
-	handlers := api.NewHandlers(services, logger)
+	handlers := apiHttp.NewHandlers(services, logger, tokenManager)
 
 	// HTTP Server
 	srv := server.NewServer(cfg, handlers.Init(cfg))

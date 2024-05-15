@@ -7,10 +7,30 @@ http_server:
 database:
   net: "tcp"
   server: ":3306"
-  db_name: "backend"
+  db_name: "NNBlog"
   user: "root"
   password: "root"
   time_zone: "UTC"
   timeout: 2s
   max_idle_connections: 40
   max_open_connections: 40
+limiter:
+  rps: 10
+  burst: 20
+  ttl: 10m
+auth:
+  jwt:
+    access_token_ttl: 10m
+    refresh_token_ttl: 720h
+    signing_key: "notasecret"
+  password_salt: "notasecret"
+  verification_code_length: 10
+smtp:
+  host: "smtp.gmail.com"
+  port: 583
+  from: "somemail@gmail.com"
+  pass: "notasecret"
+email:
+  enabled: false
+  templates:
+    verification: "./templates/verification_email.html"

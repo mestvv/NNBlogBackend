@@ -14,10 +14,197 @@ const docTemplateinternal = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {},
+    "paths": {
+        "/users/auth": {
+            "post": {
+                "description": "Аутентификация пользователей",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Auth"
+                ],
+                "summary": "Аутентификация",
+                "parameters": [
+                    {
+                        "description": "Аутентификация",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.userAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.userAuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/pong": {
+            "get": {
+                "security": [
+                    {
+                        "UserAuth": []
+                    }
+                ],
+                "description": "Pong",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pong"
+                ],
+                "summary": "Pong",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/users/register": {
+            "post": {
+                "description": "Создание аккаунта юзера",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Auth"
+                ],
+                "summary": "Регистрация",
+                "parameters": [
+                    {
+                        "description": "Регистрация",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.userRegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ErrorStruct": {
+            "type": "object",
+            "properties": {
+                "error_code": {
+                    "type": "integer"
+                },
+                "error_message": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.userAuthRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "example": "mail@mail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 8,
+                    "example": "notasecretpassword"
+                }
+            }
+        },
+        "v1.userAuthResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.userRegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "example": "mail@mail.com"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 2,
+                    "example": "wazzup"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 8,
+                    "example": "notasecretpassword"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
-        "Bearer": {
-            "description": "Type \"Bearer\" followed by a space and JWT token.",
+        "AdminAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "UserAuth": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -31,8 +218,8 @@ var SwaggerInfointernal = &swag.Spec{
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Backend Service",
-	Description:      "API for Service",
+	Title:            "Backend API",
+	Description:      "Backend API for NNBlog Service",
 	InfoInstanceName: "internal",
 	SwaggerTemplate:  docTemplateinternal,
 	LeftDelim:        "{{",

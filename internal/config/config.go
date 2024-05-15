@@ -9,9 +9,13 @@ import (
 )
 
 type Config struct {
-	Env        string     `yaml:"env" env-required:"true"`
-	HttpServer HttpServer `yaml:"http_server"`
-	Database   Database   `yaml:"database"`
+	Env        string      `yaml:"env" env-required:"true"`
+	HttpServer HttpServer  `yaml:"http_server" env-required:"true"`
+	Database   Database    `yaml:"database" env-required:"true"`
+	Limiter    Limiter     `yaml:"limiter" env-required:"true"`
+	Auth       AuthConfig  `yaml:"auth" env-required:"true"`
+	SMTP       SMTPConfig  `yaml:"smtp" env-required:"true"`
+	Email      EmailConfig `yaml:"email" env-required:"true"`
 }
 
 type HttpServer struct {
@@ -31,6 +35,40 @@ type Database struct {
 	Timeout            time.Duration `yaml:"timeout" env-default:"2s"`
 	MaxIdleConnections int           `yaml:"max_idle_connections" env-default:"40"`
 	MaxOpenConnections int           `yaml:"max_open_connections" env-default:"40"`
+}
+
+type Limiter struct {
+	RPS   int           `yaml:"rps" env-default:"10"`
+	Burst int           `yaml:"burst" env-default:"20"`
+	TTL   time.Duration `yaml:"ttl" env-default:"10m"`
+}
+
+type AuthConfig struct {
+	JWT                    JWTConfig `yaml:"jwt" env-required:"true"`
+	PasswordSalt           string    `yaml:"password_salt" env-required:"true"`
+	VerificationCodeLength int       `yaml:"verification_code_length" env-default:"6"`
+}
+
+type JWTConfig struct {
+	AccessTokenTTL  time.Duration `yaml:"access_token_ttl" env-default:"1m"`
+	RefreshTokenTTL time.Duration `yaml:"refresh_token_ttl" env-default:"240h"`
+	SigningKey      string        `yaml:"signing_key" env-required:"true"`
+}
+
+type SMTPConfig struct {
+	Host string `yaml:"host" env-required:"true"`
+	Port int    `yaml:"port" env-required:"true"`
+	From string `yaml:"from" env-required:"true"`
+	Pass string `yaml:"pass" env-required:"true"`
+}
+
+type EmailConfig struct {
+	Enabled   bool           `yaml:"enabled" env-default:"false"`
+	Templates EmailTemplates `yaml:"templates" env-required:"true"`
+}
+
+type EmailTemplates struct {
+	Verification string `yaml:"verification" env-required:"true"`
 }
 
 func MustLoad(configPath string) *Config {
