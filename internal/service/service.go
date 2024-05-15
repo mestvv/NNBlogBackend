@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/mestvv/NNBlogBackend/internal/config"
 	"github.com/mestvv/NNBlogBackend/internal/repository"
 	"github.com/mestvv/NNBlogBackend/pkg/auth"
@@ -31,6 +32,7 @@ func NewServices(deps Deps) *Services {
 
 	return &Services{
 		Users: newUserService(deps.Repos.Users,
+			deps.Repos.RefreshSession,
 			deps.Hasher,
 			deps.TokenManager,
 			deps.OtpGenerator,
@@ -45,5 +47,7 @@ type Emails interface {
 }
 
 type Users interface {
-	Register(ctx context.Context, input UserRegisterInput) error
+	Register(ctx context.Context, input *UserRegisterInput) error
+	Auth(ctx context.Context, input *UserAuthInput) (*Tokens, error)
+	createSession(ctx context.Context, userID *uuid.UUID, userAgent *string, userIP *string) (*Tokens, error)
 }

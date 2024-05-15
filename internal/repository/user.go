@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/go-sql-driver/mysql"
@@ -23,10 +25,11 @@ func newUserRepository(db *sqlx.DB) *userRepository {
 
 func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	const query = `
-	INSERT INTO user (id, password, username, first_name, last_name, email, role, active, verification_code, verified) VALUES(uuid_to_bin(?), ?, ?, ?, ?, ?, ?, ?, ?, ?);
-	`
+				INSERT INTO user (id, login, password, email) 
+				VALUES(uuid_to_bin(?), ?, ?, ?);
+				`
 
-	_, err := r.db.ExecContext(ctx, query, user.ID, user.Password, user.Username, user.FirstName, user.LastName, user.Email, user.Role, user.Active, user.VerificationCode, user.Verified)
+	_, err := r.db.ExecContext(ctx, query, user.ID, user.Login, user.Password, user.Email)
 
 	if err != nil {
 		if mysqlError, ok := err.(*mysql.MySQLError); ok && mysqlError.Number == db.DuplicateEntry {
@@ -38,6 +41,19 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *userRepository) GetByID(ctx context.Context, ID uuid.UUID) (*domain.User, error) {
-	return nil, nil
+func (r *userRepository) GetByCredentials(ctx context.Context, email string, password string) (*uuid.UUID, error) {
+	const query = `
+				SELECT id FROM user
+				WHERE email = ?
+				AND password = ?
+				`
+	var ID uuid.UUID
+	if err := r.db.GetContext(ctx, &ID, query, email, password); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, fmt.Errorf("select from user failed: %w", err)
+	}
+
+	return &ID, nil
 }

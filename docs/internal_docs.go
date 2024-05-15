@@ -15,9 +15,9 @@ const docTemplateinternal = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/users/register": {
+        "/users/auth": {
             "post": {
-                "description": "Create user account",
+                "description": "Аутентификация пользователей",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,10 +27,84 @@ const docTemplateinternal = `{
                 "tags": [
                     "User Auth"
                 ],
-                "summary": "User Register",
+                "summary": "Аутентификация",
                 "parameters": [
                     {
-                        "description": "register info",
+                        "description": "Аутентификация",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.userAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.userAuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/pong": {
+            "get": {
+                "security": [
+                    {
+                        "UserAuth": []
+                    }
+                ],
+                "description": "Pong",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pong"
+                ],
+                "summary": "Pong",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorStruct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/users/register": {
+            "post": {
+                "description": "Создание аккаунта юзера",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Auth"
+                ],
+                "summary": "Регистрация",
+                "parameters": [
+                    {
+                        "description": "Регистрация",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -68,6 +142,34 @@ const docTemplateinternal = `{
                 }
             }
         },
+        "v1.userAuthRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "example": "mail@mail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 8,
+                    "example": "notasecretpassword"
+                }
+            }
+        },
+        "v1.userAuthResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.userRegisterRequest": {
             "type": "object",
             "required": [
@@ -81,18 +183,6 @@ const docTemplateinternal = `{
                     "maxLength": 64,
                     "example": "mail@mail.com"
                 },
-                "first_name": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 2,
-                    "example": "John"
-                },
-                "last_name": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 2,
-                    "example": "Doe"
-                },
                 "name": {
                     "type": "string",
                     "maxLength": 64,
@@ -104,10 +194,6 @@ const docTemplateinternal = `{
                     "maxLength": 64,
                     "minLength": 8,
                     "example": "notasecretpassword"
-                },
-                "phone": {
-                    "type": "string",
-                    "example": "74950234061"
                 }
             }
         }
@@ -118,7 +204,7 @@ const docTemplateinternal = `{
             "name": "Authorization",
             "in": "header"
         },
-        "UsersAuth": {
+        "UserAuth": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -132,8 +218,8 @@ var SwaggerInfointernal = &swag.Spec{
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Backend Service",
-	Description:      "API for Service",
+	Title:            "Backend API",
+	Description:      "Backend API for NNBlog Service",
 	InfoInstanceName: "internal",
 	SwaggerTemplate:  docTemplateinternal,
 	LeftDelim:        "{{",

@@ -75,7 +75,7 @@ func main() {
 		EmailSender:  emailSender,
 		Repos:        repos,
 	})
-	handlers := apiHttp.NewHandlers(services, logger)
+	handlers := apiHttp.NewHandlers(services, logger, tokenManager)
 
 	// HTTP Server
 	srv := server.NewServer(cfg, handlers.Init(cfg))

@@ -5,11 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mestvv/NNBlogBackend/internal/service"
+	"github.com/mestvv/NNBlogBackend/pkg/auth"
 )
 
-// @title Backend Service
+// @title Backend API
 // @version 1.0
-// @description API for Service
+// @description Backend API for NNBlog Service
 
 // @BasePath /api/v1
 
@@ -17,19 +18,21 @@ import (
 // @in header
 // @name Authorization
 
-// @securityDefinitions.apikey UsersAuth
+// @securityDefinitions.apikey UserAuth
 // @in header
 // @name Authorization
 
 type Handler struct {
-	services *service.Services
-	logger   *slog.Logger
+	services     *service.Services
+	logger       *slog.Logger
+	tokenManager auth.TokenManager
 }
 
-func NewHandler(services *service.Services, logger *slog.Logger) *Handler {
+func NewHandler(services *service.Services, logger *slog.Logger, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
-		services: services,
-		logger:   logger,
+		services:     services,
+		logger:       logger,
+		tokenManager: tokenManager,
 	}
 }
 

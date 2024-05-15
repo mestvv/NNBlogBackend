@@ -9,6 +9,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	_ "github.com/mestvv/NNBlogBackend/docs"
+	"github.com/mestvv/NNBlogBackend/pkg/auth"
 	"github.com/mestvv/NNBlogBackend/pkg/limiter"
 	"github.com/mestvv/NNBlogBackend/pkg/validator"
 
@@ -19,14 +20,16 @@ import (
 )
 
 type Handler struct {
-	services *service.Services
-	logger   *slog.Logger
+	services     *service.Services
+	logger       *slog.Logger
+	tokenManager auth.TokenManager
 }
 
-func NewHandlers(services *service.Services, logger *slog.Logger) *Handler {
+func NewHandlers(services *service.Services, logger *slog.Logger, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
-		services: services,
-		logger:   logger,
+		services:     services,
+		logger:       logger,
+		tokenManager: tokenManager,
 	}
 }
 
@@ -56,7 +59,7 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 }
 
 func (h *Handler) initAPI(router *gin.Engine) {
-	internalHandlersV1 := internalV1.NewHandler(h.services, h.logger)
+	internalHandlersV1 := internalV1.NewHandler(h.services, h.logger, h.tokenManager)
 	api := router.Group("/api")
 	{
 		internalHandlersV1.Init(api)
